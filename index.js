@@ -15,6 +15,7 @@ const CleanCSS = require("clean-css");
 const twentyKb = 20 * 1024;
 
 const defaultOptions = {
+  appHtml: "index.html",
   //# stable configurations
   port: 45678,
   source: "build",
@@ -440,7 +441,7 @@ const saveAsHtml = async ({ page, filePath, options, route }) => {
   } else {
     if (title.includes("404")) console.log(`⚠️  page not found ${route}`);
     mkdirp.sync(filePath);
-    fs.writeFileSync(path.join(filePath, "index.html"), minifiedContent);
+    fs.writeFileSync(path.join(filePath, options.appHtml), minifiedContent);
   }
 };
 
@@ -485,13 +486,13 @@ const run = async userOptions => {
   }
 
   fs
-    .createReadStream(path.join(sourceDir, "index.html"))
+    .createReadStream(path.join(sourceDir, options.appHtml))
     .pipe(fs.createWriteStream(path.join(sourceDir, "200.html")));
 
   if (destinationDir !== sourceDir && options.saveAs === "html") {
     mkdirp.sync(destinationDir);
     fs
-      .createReadStream(path.join(sourceDir, "index.html"))
+      .createReadStream(path.join(sourceDir, options.appHtml))
       .pipe(fs.createWriteStream(path.join(destinationDir, "200.html")));
   }
 
