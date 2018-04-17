@@ -16,6 +16,7 @@ const twentyKb = 20 * 1024;
 
 const defaultOptions = {
   appHtml: "index.html",
+  fallbackHtml: "200.html",
   //# stable configurations
   port: 45678,
   source: "build",
@@ -468,7 +469,7 @@ const run = async userOptions => {
   const startServer = options => {
     const app = express()
       .use(options.publicPath, serveStatic(sourceDir))
-      .use(fallback("200.html", { root: sourceDir }));
+      .use(fallback(options.fallbackHtml, { root: sourceDir }));
     const server = http.createServer(app);
     server.listen(options.port);
     return server;
@@ -477,23 +478,23 @@ const run = async userOptions => {
   if (
     destinationDir === sourceDir &&
     options.saveAs === "html" &&
-    fs.existsSync(path.join(sourceDir, "200.html"))
+    fs.existsSync(path.join(sourceDir, options.fallbackHtml))
   ) {
     console.log(
-      `200.html is present in the sourceDir (${sourceDir}). You can not run react-snap twice - this will break the build`
+      `${options.fallbackHtml} is present in the sourceDir (${sourceDir}). You can not run react-snap twice - this will break the build`
     );
     process.exit(1);
   }
 
   fs
     .createReadStream(path.join(sourceDir, options.appHtml))
-    .pipe(fs.createWriteStream(path.join(sourceDir, "200.html")));
+    .pipe(fs.createWriteStream(path.join(sourceDir, options.fallbackHtml)));
 
   if (destinationDir !== sourceDir && options.saveAs === "html") {
     mkdirp.sync(destinationDir);
     fs
       .createReadStream(path.join(sourceDir, options.appHtml))
-      .pipe(fs.createWriteStream(path.join(destinationDir, "200.html")));
+      .pipe(fs.createWriteStream(path.join(destinationDir, options.fallbackHtml)));
   }
 
   const server = options.externalServer ? null : startServer(options);
